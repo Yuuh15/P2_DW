@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    container_name: meridiano-app
+    ports:
+      - "${APP_PORT:-8081}:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_NAME: meridiano
+      DB_USER: meridiano
+      DB_PASS: meridiano123
+      DB_CHARSET: utf8mb4
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c "mkdir -p /var/www/html/uploads/destinos
+      && chown -R www-data:www-data /var/www/html/uploads
+      && apache2-foreground"
+  db:
+    image: mariadb:11.4
+    container_name: meridiano-db
+    ports:
+      - "127.0.0.1:3307:3306"
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: meridiano
+      MARIADB_USER: meridiano
+      MARIADB_PASSWORD: meridiano123
+      MARIADB_ROOT_PASSWORD: root123
+    volumes:
+      - meridiano_db:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  meridiano_db:

@@ -1,0 +1,21 @@
+# Dependências
+/vendor/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Uploads em tempo de execução
+/uploads/destinos/
+
+# Logs e temporários
+*.log
+.DS_Store
+Thumbs.db
+
+# IDEs / editores
+.idea/
+.vscode/
+*.swp
+*~
